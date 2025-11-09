@@ -6,10 +6,7 @@ interface PublicRouteProps {
   children: ReactNode;
 }
 
-/**
- * PublicRoute Component
- * Redirects to dashboard if user is already authenticated
- */
+
 export const PublicRoute = ({ children }: PublicRouteProps) => {
   const { isAuthenticated, isLoading } = useAuth();
 

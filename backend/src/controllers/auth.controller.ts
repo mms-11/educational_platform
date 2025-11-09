@@ -32,17 +32,15 @@ export const authController = {
         });
       }
 
-      // Gerar token JWT - CORRIGIDO
+      // Gerar token JWT - SOLUÇÃO DEFINITIVA
       const token = jwt.sign(
         {
           id: user.id,
           email: user.email,
           role: user.role,
         },
-        config.jwt.secret as string,
-        {
-          expiresIn: config.jwt.expiresIn as string | number,
-        }
+        config.jwt.secret,
+        { expiresIn: config.jwt.expiresIn } as any // ← FORÇAR TIPO
       );
 
       const { password: _, ...userWithoutPassword } = user;
@@ -94,17 +92,15 @@ export const authController = {
 
       users.push(newUser);
 
-      // Gerar token JWT - CORRIGIDO
+      // Gerar token JWT - SOLUÇÃO DEFINITIVA
       const token = jwt.sign(
         {
           id: newUser.id,
           email: newUser.email,
           role: newUser.role,
         },
-        config.jwt.secret as string,
-        {
-          expiresIn: config.jwt.expiresIn as string | number,
-        }
+        config.jwt.secret,
+        { expiresIn: config.jwt.expiresIn } as any // ← FORÇAR TIPO
       );
 
       const { password: _, ...userWithoutPassword } = newUser;
@@ -121,7 +117,7 @@ export const authController = {
     }
   },
 
-  // POST /api/auth/verify - ADICIONAR
+  // POST /api/auth/verify
   verify: async (req: Request, res: Response) => {
     try {
       const { token } = req.body;
@@ -132,7 +128,7 @@ export const authController = {
         });
       }
 
-      const decoded = jwt.verify(token, config.jwt.secret as string) as any;
+      const decoded = jwt.verify(token, config.jwt.secret) as any;
 
       const user = users.find((u) => u.id === decoded.id);
 
@@ -156,11 +152,9 @@ export const authController = {
     }
   },
 
-  // POST /api/auth/logout - ADICIONAR
+  // POST /api/auth/logout
   logout: async (req: Request, res: Response) => {
     try {
-      // Como estamos usando JWT, não há necessidade de invalidar no servidor
-      // O cliente deve remover o token do localStorage
       res.json({
         message: 'Logout realizado com sucesso',
       });

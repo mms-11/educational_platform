@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ProtectedRoute } from '@/components/common/ProtectedRoute';
+import ProtectedRoute from '@/components/common/ProtectedRoute';
 import { PublicRoute } from '@/components/common/PublicRoute';
 import { MainLayout } from '@/components/layout/MainLayout';
 

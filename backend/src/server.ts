@@ -5,7 +5,7 @@ import authRoutes from './routes/auth.routes';
 import studentRoutes from './routes/student.routes';
 import classRoutes from './routes/class.routes';
 import dashboardRoutes from './routes/dashboard.routes';
-import assessmentRoutes from '../src/routes/assessments.routes';
+import assessmentRoutes  from './routes/assessments.routes';
 
 dotenv.config();
 

@@ -1,7 +1,7 @@
 import { Response } from 'express';
-import { students, classes } from '@/data/mockData';
-import type { AuthRequest } from '@/middlewares';
-import type { Student } from '@/types';
+import { students, classes } from '../data/mockData';
+import type { AuthRequest } from '../middlewares';
+import type { Student } from '../types';
 
 let studentIdCounter = students.length + 1;
 

@@ -1,38 +1,38 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { users } from '@/data/mockData';
-import { config } from '@/config';
-import type { AuthRequest } from '@/middlewares';
+import { users } from '../data/mockData';
+import { config } from '../config';
 
 export const authController = {
   // POST /api/auth/login
-  login: async (req: Request, res: Response): Promise<void> => {
+  login: async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;
 
       if (!email || !password) {
-        res.status(400).json({ message: 'Email e senha são obrigatórios' });
-        return;
+        return res.status(400).json({
+          message: 'Email e senha são obrigatórios',
+        });
       }
 
-      // Find user
       const user = users.find((u) => u.email === email);
 
       if (!user) {
-        res.status(401).json({ message: 'Credenciais inválidas' });
-        return;
+        return res.status(401).json({
+          message: 'Credenciais inválidas',
+        });
       }
 
-      // Check password
-      const isPasswordValid = bcrypt.compareSync(password, user.password);
+      const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (!isPasswordValid) {
-        res.status(401).json({ message: 'Credenciais inválidas' });
-        return;
+        return res.status(401).json({
+          message: 'Credenciais inválidas',
+        });
       }
 
-      // Generate token
+      // Gerar token JWT - SOLUÇÃO DEFINITIVA
       const token = jwt.sign(
         {
           id: user.id,
@@ -40,65 +40,154 @@ export const authController = {
           role: user.role,
         },
         config.jwt.secret,
-        { expiresIn: config.jwt.expiresIn }
+        { expiresIn: config.jwt.expiresIn } as any // ← FORÇAR TIPO
       );
 
-      // Return user without password
       const { password: _, ...userWithoutPassword } = user;
 
       res.json({
-        token,
         user: userWithoutPassword,
+        token,
       });
     } catch (error) {
       console.error('Login error:', error);
-      res.status(500).json({ message: 'Erro ao fazer login' });
+      res.status(500).json({
+        message: 'Erro ao fazer login',
+      });
     }
   },
 
-  // POST /api/auth/logout
-  logout: async (req: Request, res: Response): Promise<void> => {
-    // In a real app, you might want to blacklist the token
-    res.json({ message: 'Logout realizado com sucesso' });
-  },
-
-  // GET /api/auth/me
-  me: async (req: AuthRequest, res: Response): Promise<void> => {
+  // POST /api/auth/register
+  register: async (req: Request, res: Response) => {
     try {
-      if (!req.user) {
-        res.status(401).json({ message: 'Não autenticado' });
-        return;
+      const { name, email, password, role } = req.body;
+
+      if (!name || !email || !password) {
+        return res.status(400).json({
+          message: 'Nome, email e senha são obrigatórios',
+        });
       }
 
-      const user = users.find((u) => u.id === req.user!.id);
+      const userExists = users.find((u) => u.email === email);
 
-      if (!user) {
-        res.status(404).json({ message: 'Usuário não encontrado' });
-        return;
+      if (userExists) {
+        return res.status(400).json({
+          message: 'Usuário já cadastrado',
+        });
       }
 
-      const { password: _, ...userWithoutPassword } = user;
-      res.json(userWithoutPassword);
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const newUser = {
+        id: String(users.length + 1),
+        name,
+        email,
+        password: hashedPassword,
+        role: role || 'teacher',
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+          name
+        )}&background=random`,
+        createdAt: new Date().toISOString(),
+      };
+
+      users.push(newUser);
+
+      // Gerar token JWT - SOLUÇÃO DEFINITIVA
+      const token = jwt.sign(
+        {
+          id: newUser.id,
+          email: newUser.email,
+          role: newUser.role,
+        },
+        config.jwt.secret,
+        { expiresIn: config.jwt.expiresIn } as any // ← FORÇAR TIPO
+      );
+
+      const { password: _, ...userWithoutPassword } = newUser;
+
+      res.status(201).json({
+        user: userWithoutPassword,
+        token,
+      });
     } catch (error) {
-      console.error('Get user error:', error);
-      res.status(500).json({ message: 'Erro ao buscar usuário' });
+      console.error('Register error:', error);
+      res.status(500).json({
+        message: 'Erro ao criar usuário',
+      });
     }
   },
 
   // POST /api/auth/verify
-  verify: async (req: Request, res: Response): Promise<void> => {
+  verify: async (req: Request, res: Response) => {
     try {
       const { token } = req.body;
 
       if (!token) {
-        res.status(400).json({ valid: false });
-        return;
+        return res.status(400).json({
+          message: 'Token não fornecido',
+        });
       }
 
-      jwt.verify(token, config.jwt.secret);
-      res.json({ valid: true });
-    } catch {
-      res.json({ valid: false });
+      const decoded = jwt.verify(token, config.jwt.secret) as any;
+
+      const user = users.find((u) => u.id === decoded.id);
+
+      if (!user) {
+        return res.status(404).json({
+          message: 'Usuário não encontrado',
+        });
+      }
+
+      const { password: _, ...userWithoutPassword } = user;
+
+      res.json({
+        valid: true,
+        user: userWithoutPassword,
+      });
+    } catch (error) {
+      res.status(401).json({
+        valid: false,
+        message: 'Token inválido',
+      });
+    }
+  },
+
+  // POST /api/auth/logout
+  logout: async (req: Request, res: Response) => {
+    try {
+      res.json({
+        message: 'Logout realizado com sucesso',
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      res.status(500).json({
+        message: 'Erro ao fazer logout',
+      });
+    }
+  },
+
+  // GET /api/auth/me
+  me: async (req: Request, res: Response) => {
+    try {
+      // @ts-ignore
+      const userId = req.userId;
+
+      const user = users.find((u) => u.id === userId);
+
+      if (!user) {
+        return res.status(404).json({
+          message: 'Usuário não encontrado',
+        });
+      }
+
+      const { password: _, ...userWithoutPassword } = user;
+
+      res.json({ user: userWithoutPassword });
+    } catch (error) {
+      console.error('Me error:', error);
+      res.status(500).json({
+        message: 'Erro ao buscar usuário',
+      });
     }
   },
 };

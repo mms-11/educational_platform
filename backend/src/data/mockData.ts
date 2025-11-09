@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import type { User, Student, Class, ClassAssessment, UpcomingAssessment } from '@/types';
+import type { User, Student, Class, ClassAssessment, UpcomingAssessment } from '../types';
 
 // Hash password helper
 const hashPassword = (password: string): string => {

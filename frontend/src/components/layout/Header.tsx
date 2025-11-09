@@ -1,8 +1,15 @@
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts';
 import styles from './Header.module.css';
 
 export const Header = () => {
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <header className={styles.header}>
@@ -17,7 +24,7 @@ export const Header = () => {
               {user?.role === 'admin' ? 'Administrador' : 'Professor'}
             </span>
           </div>
-          <button onClick={logout} className={styles.logoutButton}>
+          <button onClick={handleLogout} className={styles.logoutButton}>
             Sair
           </button>
         </div>

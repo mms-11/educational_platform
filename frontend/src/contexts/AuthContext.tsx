@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize auth state from localStorage
+  
   useEffect(() => {
     const initAuth = () => {
       const storedToken = localStorage.getItem('token');
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoading(true);
       const response = await authService.login(credentials);
       
-      // Store token and user
+
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
       
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logout = () => {
-    // Clear storage
+   
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     

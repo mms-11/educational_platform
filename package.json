@@ -1,0 +1,35 @@
+{
+  "name": "portal-professor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portal do Professor - Sistema Acadêmico",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build",
+    "lint": "cd backend && npm run lint && cd ../frontend && npm run lint",
+    "lint:fix": "cd backend && npm run lint:fix && cd ../frontend && npm run lint:fix",
+    "test": "cd backend && npm test && cd ../frontend && npm test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\""
+  },
+  "keywords": [
+    "react",
+    "typescript",
+    "node",
+    "express",
+    "education",
+    "academic"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/uuid": "^10.0.0",
+    "concurrently": "^8.2.2",
+    "prettier": "^3.2.4"
+  },
+  "dependencies": {
+    "uuid": "^13.0.0"
+  }
+}

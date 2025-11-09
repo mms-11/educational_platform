@@ -72,10 +72,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setToken(null);
     setUser(null);
     
-    // Optionally call logout endpoint
-    authService.logout().catch((error) => {
-      console.error('Logout error:', error);
-    });
+   
   };
 
   const value: AuthContextType = {

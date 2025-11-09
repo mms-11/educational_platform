@@ -7,27 +7,18 @@ import classRoutes from './routes/class.routes';
 import dashboardRoutes from './routes/dashboard.routes';
 import assessmentRoutes  from './routes/assessments.routes';
 
+
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS configurado para produção
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  process.env.FRONTEND_URL || '', // URL do Vercel
-];
-
+// CORS liberado para QUALQUER origem (temporário para testes)
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
+  origin: '*', // ← ACEITA QUALQUER ORIGEM
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false, // ← Importante quando origin é '*'
 }));
 
 app.use(express.json());
